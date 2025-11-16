@@ -19,6 +19,8 @@ EOI = '\n' # ATTENTION: certains tests peuvent modifier la valeur de EOI
 SEP = {' ', '\n', '\t'} - set(EOI)
 
 DIGITS = frozenset(repr(digit) for digit in range(10))
+EXPONENT = "Ee"
+SIGN = "+-"
 
 V_C = set(tuple(DIGITS) + ('.', 'e', 'E', '+', '-', '*', '/', '^', '!', '(', ')', '#', ';'))
 V = set(tuple(V_C) + (EOI,) + tuple(SEP))

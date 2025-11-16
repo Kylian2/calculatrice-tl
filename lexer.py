@@ -243,19 +243,15 @@ def read_word(initial, automate, acceptant):
         raise LexerError("Le mot vide n'est pas reconnu")
     return full_word
 
-DIGITS = "0123456789"
-EXPONENT = "Ee"
-SIGN = "+-"
-
 # Représentation en dictionnaire de l'automate "integer".
 # Pour chaque sommet est associé un dictionnaire de sommets adjacents,
 # la fonction lambda en valeur correspond à la condition nécessaire pour passer à l'autre sommet
 INT_AUTOMATE = {
     "q0": [
-        ("q1", lambda x: x in DIGITS)
+        ("q1", lambda x: x in defs.DIGITS)
     ],
     "q1": [
-        ("q1", lambda x: x in DIGITS)
+        ("q1", lambda x: x in defs.DIGITS)
     ],
 }
 # État initial
@@ -267,17 +263,17 @@ INT_AUTOMATE_ACCEPTANT = ["q1"]
 FLOAT_AUTOMATE = {
     "q0": [
         ("q1", lambda x: f"{x}" == "."),
-        ("q2", lambda x: x in DIGITS)
+        ("q2", lambda x: x in defs.DIGITS)
     ],
     "q1": [
-        ("q3", lambda x: x in DIGITS)
+        ("q3", lambda x: x in defs.DIGITS)
     ],
     "q2": [
-        ("q2", lambda x: x in DIGITS),
+        ("q2", lambda x: x in defs.DIGITS),
         ("q3", lambda x: f"{x}" == "."),
     ],
     "q3": [
-        ("q3", lambda x: x in DIGITS)
+        ("q3", lambda x: x in defs.DIGITS)
     ],
 }
 FLOAT_AUTOMATE_INITIAL = "q0"
@@ -287,29 +283,29 @@ FLOAT_AUTOMATE_ACCEPTANT = ["q3"]
 NUMBER_AUTOMATE = {
     "q0": [
         ("q1", lambda x: x == "."),
-        ("q3", lambda x: x in DIGITS)
+        ("q3", lambda x: x in defs.DIGITS)
     ],
     "q1": [
-        ("q2", lambda x: x in DIGITS)
+        ("q2", lambda x: x in defs.DIGITS)
     ],
     "q2": [
-        ("q2", lambda x: x in DIGITS),
-        ("q4", lambda x: x in EXPONENT)
+        ("q2", lambda x: x in defs.DIGITS),
+        ("q4", lambda x: x in defs.EXPONENT)
     ],
     "q3": [
         ("q2", lambda x: x == "."),
-        ("q3", lambda x: x in DIGITS),
-        ("q4", lambda x: x in EXPONENT)
+        ("q3", lambda x: x in defs.DIGITS),
+        ("q4", lambda x: x in defs.EXPONENT)
     ],
     "q4": [
-        ("q5", lambda x: x in SIGN),
-        ("q6", lambda x: x in DIGITS)
+        ("q5", lambda x: x in defs.SIGN),
+        ("q6", lambda x: x in defs.DIGITS)
     ],
     "q5": [
-        ("q6", lambda x: x in DIGITS)
+        ("q6", lambda x: x in defs.DIGITS)
     ],
     "q6": [
-        ("q6", lambda x: x in DIGITS)
+        ("q6", lambda x: x in defs.DIGITS)
     ]
 }
 NUMBER_AUTOMATE_INITIAL = "q0"

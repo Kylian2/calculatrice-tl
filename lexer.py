@@ -160,7 +160,7 @@ def read_word(initial, automate, acceptant):
 
     # Cas de base : uniquement le EOI (dans ce cas ce n'est pas reconnu, le mot vide n'étant pas reconnu)
     if (char == defs.EOI):
-        raise LexerError("Le mot vide n'est pas reconnu")
+        return None
 
     while (char != defs.EOI):
         adjacent_node = automate[current_state]
@@ -175,7 +175,7 @@ def read_word(initial, automate, acceptant):
         # Dans ce cas, on renvoie si c'est possible le mot précédant faisant partie du langage
         if (not transition):
             if (full_word == ""):
-                raise LexerError("Le mot vide n'est pas reconnu")
+                return None
             return full_word
 
         current_making_word += char
@@ -187,7 +187,7 @@ def read_word(initial, automate, acceptant):
         char = peek_char1()
 
     if (full_word == ""):
-        raise LexerError("Le mot vide n'est pas reconnu")
+        return None
 
     return full_word
 '''
@@ -221,7 +221,7 @@ def read_word(initial, automate, acceptant):
                 # Dans ce cas, on renvoie si c'est possible le mot précédant faisant partie du langage
                 if (not transition):
                     if (full_word == ""):
-                        raise LexerError("Le mot vide n'est pas reconnu")
+                        return None
                     return full_word
 
                 current_making_word += char
@@ -237,10 +237,10 @@ def read_word(initial, automate, acceptant):
             # mot reconnu par l'automate.
             else:
                 if (full_word == ""):
-                    raise LexerError("Le mot vide n'est pas reconnu")
+                    return None
                 return full_word
     if (full_word == ""):
-        raise LexerError("Le mot vide n'est pas reconnu")
+        return None
     return full_word
 
 # Représentation en dictionnaire de l'automate "integer".
@@ -335,9 +335,9 @@ def read_digit():
 # Lecture d'un entier en renvoyant sa valeur
 def read_INT():
     word = read_word(INT_INITIAL, INT_AUTOMATE, INT_AUTOMATE_ACCEPTANT)
-    if word == "":
-        print("vide")
-    return int(word);
+    if word :
+        return int(word)
+    return None
 
 
 global int_value
@@ -347,6 +347,8 @@ global sign_value
 # Lecture d'un nombre en renvoyant sa valeur
 def read_NUM():
     word = read_word(NUMBER_AUTOMATE_INITIAL, NUMBER_AUTOMATE, NUMBER_AUTOMATE_ACCEPTANT)
+    if not word:
+        return None
     if "E" in word:
         mantisse, exposant = word.split("E", maxsplit=2)
         return float(mantisse)*(10**(float(exposant)))
@@ -359,14 +361,27 @@ def read_NUM():
 # Parse un lexème (sans séparateurs) de l'entrée et renvoie son token.
 # Cela consomme tous les caractères du lexème lu.
 def read_token_after_separators():
-    print("@ATTENTION: lexer.read_token_after_separators à finir !") # LIGNE A SUPPRIMER
+    char = peek_char1();
+    if char == defs.PREFIX[defs.V_T.CALC.value]:
+        consume_char() # Consommation du '#'
+        val = read_INT()
+        if val:
+            return (defs.V_T.CALC, val)
+    elif char in defs.PREFIX:
+        consume_char()
+        return (defs.TOKEN_MAP.get(char), None)
+    else:
+        val = read_NUM()
+        if val:
+            return (defs.V_T.NUM, val)
     return (defs.V_T.END, None) # par défaut, on renvoie la fin de l'entrée
 
 
 # Donne le prochain token de l'entrée, en sautant les séparateurs éventuels en tête
 # et en consommant les caractères du lexème reconnu.
 def next_token():
-    print("@ATTENTION: lexer.next_token à finir !") # LIGNE A SUPPRIMER
+    while peek_char1() in defs.SEP:
+        consume_char()
     return read_token_after_separators()
 
 
@@ -399,6 +414,6 @@ def test_lexer():
 
 if __name__ == "__main__":
     ## Choisir une seule ligne à décommenter
-     test_INT_to_EOI()
+    # test_INT_to_EOI()
     # test_FLOAT_to_EOI()
-    #test_lexer()
+    test_lexer()

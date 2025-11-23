@@ -34,6 +34,20 @@ V_T = enum.Enum('Token', ['NUM', 'ADD', 'SUB', 'MUL', 'DIV', 'POW', 'FACT',
 
 # Les premiers caractères de chaque token (excepté NUM)
 PREFIX = ('', '+', '-', '*', '/', '^', '!', '(', ')', '#', ';', EOI)
+TOKEN_MAP = {
+    '': V_T.NUM,
+    '+': V_T.ADD,
+    '-': V_T.SUB,
+    '*': V_T.MUL,
+    '/': V_T.DIV,
+    '^': V_T.POW,
+    '!': V_T.FACT,
+    '(': V_T.OPAR,
+    ')': V_T.CPAR,
+    '#': V_T.CALC,
+    ';': V_T.SEQ,
+    'EOI': V_T.END
+}
 
 assert len(V_T)==len(PREFIX)
 

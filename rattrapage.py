@@ -53,6 +53,21 @@ def consume_token(tok):
         return old
 
 #########################
+## Définition de la fonction de rattrapage.
+
+def rattrapage(suiv):
+    """
+    Consomme les tokens jusqu'à trouver un token présent dans la liste 'suiv'
+    ou la fin du flux (END).
+    """
+    tok = get_current()
+    while tok not in suiv and tok != V_T.END:
+        consume_token(tok)
+        tok = get_current()
+    return
+
+
+#########################
 ## Définition des méthodes de parsing pour les non terminaux
 
 def parse_exp5(l):
@@ -173,6 +188,8 @@ def parse_exp0(l):
         i = consume_token(V_T.CALC)
         if not i:
             raise ParserError("Erreur dans parse_exp0: i n'a pas de valeur")
+        if i > len(l) or i <= 0:
+            raise ParserError("Erreur dans parse_exp0: #"+str(i)+" n'existe pas")
         return l[i-1]
     else:
         raise ParserError("Impossible de parser dans parse_exp0")
@@ -182,25 +199,34 @@ def parse_exp0(l):
 
 def parse_input_p(l):
     tok = get_current()
-    if tok in [V_T.SUB, V_T.OPAR, V_T.NUM, V_T.CALC]:
-        n = parse_exp5(l)
-        consume_token(V_T.SEQ)
-        l_0 = parse_input_p(l + [n])
-        return l_0
-    elif tok == V_T.END:
-        return l
-    else:
-        raise ParserError("Impossible de parser dans parse_input")
+    try:
+        if tok in [V_T.SUB, V_T.OPAR, V_T.NUM, V_T.CALC]:
+            n = parse_exp5(l)
+            consume_token(V_T.SEQ)
+            l_0 = parse_input_p(l + [n])
+            return l_0
+        elif tok == V_T.END:
+            return l
+        else:
+            raise ParserError("Impossible de parser dans parse_input")
+    except ParserError:
+        print("Le calcul à l'emplacement #"+ str(len(l)+1) +" contient une erreur, il a été ignoré");
+        rattrapage([V_T.SEQ, V_T.END])
+        # On verifie si on vient de finir un calcul ou si on est au bout de l'entrée
+        tok = get_current()
+        if tok == V_T.SEQ:
+            consume_token(V_T.SEQ)
+            return parse_input_p(l) # On repart sur le prochain calcul
+        elif tok == V_T.END:
+            return l
+
+    return l
 
 def parse_input():
     tok = get_current()
-    if tok in [V_T.SUB, V_T.OPAR, V_T.NUM, V_T.CALC]:
-        n = parse_exp5([])
-        consume_token(V_T.SEQ)
-        l_0 = parse_input_p([n])
-        return l_0
-    elif tok == V_T.END:
-        return []
+    if tok in [V_T.SUB, V_T.OPAR, V_T.NUM, V_T.CALC, V_T.END]:
+        l = parse_input_p([])
+        return l
     else:
         raise ParserError("Impossible de parser dans parse_input")
 

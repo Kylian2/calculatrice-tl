@@ -3,7 +3,7 @@
 """
 Projet TL : parser - requires Python version >= 3.10
 """
-
+import math
 import sys
 from math import factorial
 
@@ -55,138 +55,152 @@ def consume_token(tok):
 #########################
 ## Définition des méthodes de parsing pour les non terminaux
 
-def parse_exp5():
+def parse_exp5(l):
     tok = get_current()
     if tok in [V_T.SUB, V_T.OPAR, V_T.NUM, V_T.CALC]:
-        parse_exp4()
-        parse_exp5_p()
-        return
+        n_1 = parse_exp4(l)
+        n = parse_exp5_p(l, n_1)
+        return n
     else:
         raise ParserError("Impossible de parser dans parse_exp5")
 
-def parse_exp5_p():
+def parse_exp5_p(l, n_1):
     tok = get_current()
     if tok  == V_T.ADD:
         consume_token(V_T.ADD)
-        parse_exp4()
-        parse_exp5_p()
-        return
+        n_0 = parse_exp4(l)
+        n = parse_exp5_p(l, n_1 + n_0)
+        return n
     elif tok == V_T.SUB:
         consume_token(V_T.SUB)
-        parse_exp4()
-        parse_exp5_p()
-        return
+        n_0 = parse_exp4(l)
+        n = parse_exp5_p(l, n_1 - n_0)
+        return n
     elif tok in [V_T.CPAR, V_T.SEQ]:
-        return
+        return n_1
     else:
         raise ParserError("Impossible de parser dans parse_exp5_p")
 
-def parse_exp4():
+def parse_exp4(l):
     tok = get_current()
     if tok in [V_T.SUB, V_T.OPAR, V_T.NUM, V_T.CALC]:
-        parse_exp3()
-        parse_exp4_p()
-        return
+        n_1 = parse_exp3(l)
+        n = parse_exp4_p(l, n_1)
+        return n
     else:
         raise ParserError("Impossible de parser dans parse_exp4")
 
-def parse_exp4_p():
+def parse_exp4_p(l, n_1):
     tok = get_current()
     if tok == V_T.MUL:
         consume_token(V_T.MUL)
-        parse_exp3()
-        parse_exp4_p()
-        return
+        n_0 = parse_exp3(l)
+        n = parse_exp4_p(l, n_1 * n_0)
+        return n
     elif tok == V_T.DIV:
         consume_token(V_T.DIV)
-        parse_exp3()
-        parse_exp4_p()
-        return
+        n_0 = parse_exp3(l)
+        n = parse_exp4_p(l, n_1 / n_0)
+        return n
     elif tok in [V_T.ADD, V_T.SUB, V_T.CPAR, V_T.SEQ]:
-        return
+        return n_1
     else:
         raise ParserError("Impossible de parser dans parse_exp4_p")
 
-def parse_exp3():
+def parse_exp3(l):
     tok = get_current()
     if tok == V_T.SUB:
         consume_token(V_T.SUB)
-        parse_exp3()
-        return
+        n_0 = parse_exp3(l)
+        return -n_0
     elif tok in [V_T.OPAR, V_T.NUM, V_T.CALC]:
-        parse_exp2()
-        return
+        n_0 = parse_exp2(l)
+        return n_0
     else:
         raise ParserError("Impossible de parser dans parse3")
 
-def parse_exp2():
+def parse_exp2(l):
     tok = get_current()
     if tok in [ V_T.OPAR, V_T.NUM, V_T.CALC]:
-        parse_exp1()
-        parse_exp2_p()
-        return
+        n_1 = parse_exp1(l)
+        n = parse_exp2_p(l, n_1)
+        return n
     else:
         raise ParserError("Impossible de parser dans parse_exp2")
 
-def parse_exp2_p():
+def parse_exp2_p(l, n_1):
     tok = get_current()
     if tok == V_T.FACT:
         consume_token(V_T.FACT)
-        parse_exp2_p()
-        return
+        n = parse_exp2_p(l, math.factorial(int(n_1)))
+        return n
     elif tok in [V_T.MUL, V_T.DIV, V_T.ADD, V_T.SUB, V_T.CPAR, V_T.SEQ]:
-        return
+        return n_1
     else:
         raise ParserError("Impossible de parser dans parse_exp2_p")
 
-def parse_exp1():
+def parse_exp1(l):
     tok = get_current()
     if tok in [V_T.OPAR, V_T.NUM, V_T.CALC]:
-        parse_exp0()
-        parse_exp1_p()
-        return
+        n_1 = parse_exp0(l)
+        n = parse_exp1_p(l, n_1)
+        return n
     else:
         raise ParserError("Impossible de parser dans parse_exp1")
 
-def parse_exp1_p():
+def parse_exp1_p(l, n_1):
     tok = get_current()
     if tok == V_T.POW:
         consume_token(V_T.POW)
-        parse_exp1()
-        return
+        n_2 = parse_exp1(l)
+        return math.pow(n_1, n_2)
     elif tok in [V_T.FACT, V_T.MUL, V_T.DIV, V_T.ADD, V_T.SUB, V_T.CPAR, V_T.SEQ]:
-        return
+        return n_1
     else:
         raise ParserError("Impossible de parser dans parse_exp1_p")
 
-def parse_exp0():
+def parse_exp0(l):
     tok = get_current()
     if tok == V_T.OPAR:
         consume_token(V_T.OPAR)
-        parse_exp5()
+        n = parse_exp5(l)
         consume_token(V_T.CPAR)
-        return
+        return n
     elif tok == V_T.NUM:
-        consume_token(V_T.NUM)
-        return
+        val = consume_token(V_T.NUM)
+        return val
     elif tok == V_T.CALC:
-        consume_token(V_T.CALC)
-        return
+        i = consume_token(V_T.CALC)
+        if not i:
+            raise ParserError("Erreur dans parse_exp0: i n'a pas de valeur")
+        return l[i-1]
     else:
         raise ParserError("Impossible de parser dans parse_exp0")
 
 #########################
 ## Parsing de input et exp
 
+def parse_input_p(l):
+    tok = get_current()
+    if tok in [V_T.SUB, V_T.OPAR, V_T.NUM, V_T.CALC]:
+        n = parse_exp5(l)
+        consume_token(V_T.SEQ)
+        l_0 = parse_input_p(l + [n])
+        return l_0
+    elif tok == V_T.END:
+        return l
+    else:
+        raise ParserError("Impossible de parser dans parse_input")
+
 def parse_input():
     tok = get_current()
     if tok in [V_T.SUB, V_T.OPAR, V_T.NUM, V_T.CALC]:
-        parse_exp5()
+        n = parse_exp5([])
         consume_token(V_T.SEQ)
-        parse_input()
-        return
+        l_0 = parse_input_p([n])
+        return l_0
     elif tok == V_T.END:
-        return
+        return []
     else:
         raise ParserError("Impossible de parser dans parse_input")
 
@@ -209,6 +223,7 @@ def test_manuel():
     print("@ Testing the calculator in infix syntax.")
 
     result = parse()
+    print(result)
     if result is None:
         print("@ Input OK ")
     else:

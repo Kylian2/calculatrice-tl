@@ -194,13 +194,9 @@ def parse_input_p(l):
 
 def parse_input():
     tok = get_current()
-    if tok in [V_T.SUB, V_T.OPAR, V_T.NUM, V_T.CALC]:
-        n = parse_exp5([])
-        consume_token(V_T.SEQ)
-        l_0 = parse_input_p([n])
-        return l_0
-    elif tok == V_T.END:
-        return []
+    if tok in [V_T.SUB, V_T.OPAR, V_T.NUM, V_T.CALC, V_T.END]:
+        l = parse_input_p([])
+        return l
     else:
         raise ParserError("Impossible de parser dans parse_input")
 

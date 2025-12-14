@@ -361,7 +361,7 @@ def read_NUM():
 # Parse un lexème (sans séparateurs) de l'entrée et renvoie son token.
 # Cela consomme tous les caractères du lexème lu.
 def read_token_after_separators():
-    char = peek_char1();
+    char = peek_char1()
     if char == defs.PREFIX[defs.V_T.CALC.value]:
         consume_char() # Consommation du '#'
         val = read_INT()

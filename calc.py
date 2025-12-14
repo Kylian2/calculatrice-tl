@@ -178,7 +178,7 @@ def parse_exp0(l):
         raise ParserError("Impossible de parser dans parse_exp0")
 
 #########################
-## Parsing de input et exp
+## Parsing de input
 
 def parse_input_p(l):
     tok = get_current()
